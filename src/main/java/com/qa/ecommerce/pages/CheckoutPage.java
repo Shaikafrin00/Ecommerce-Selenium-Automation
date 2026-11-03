@@ -55,9 +55,12 @@ public class CheckoutPage extends BasePage {
         WebElement input = waits.visible(locator);
         input.click();
         input.clear();
-        if (!expectedValue.isEmpty()) {
-            input.sendKeys(expectedValue);
+        if (expectedValue.isEmpty()) {
+            // Empty HTML inputs may omit the value attribute; clear() is sufficient.
+            return;
         }
+
+        input.sendKeys(expectedValue);
 
         // Verify the value reached the control; use the native input setter as a
         // fallback only if WebDriver did not populate it.
