@@ -73,15 +73,7 @@ public class InventoryPage extends BasePage {
     }
 
     public CartPage openCart() {
-        WebElement cartLink = waits.clickable(CART_LINK);
-        new org.openqa.selenium.interactions.Actions(driver)
-                .moveToElement(cartLink)
-                .pause(java.time.Duration.ofMillis(150))
-                .click()
-                .perform();
-
-        new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(15))
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.urlContains("cart.html"));
+        clickAndWaitForUrl(CART_LINK, "cart.html");
         return new CartPage(driver);
     }
 
