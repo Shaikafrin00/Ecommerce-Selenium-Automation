@@ -37,14 +37,18 @@ public class InventoryPage extends BasePage {
     }
 
     public void addProductToCart(String productName) {
-        String xpath = "//div[contains(@class,'inventory_item')][.//div[@class='inventory_item_name' and normalize-space()="
-                + xpathLiteral(productName) + "]]//button";
+        String xpath = "//div[contains(concat(' ', normalize-space(@class), ' '), ' inventory_item ')"
+                + "][.//*[contains(concat(' ', normalize-space(@class), ' '), ' inventory_item_name ')"
+                + " and normalize-space(.)=" + xpathLiteral(productName) + "]]"
+                + "//button[contains(concat(' ', normalize-space(@class), ' '), ' btn_inventory ')]";
         click(By.xpath(xpath));
     }
 
     public void removeProductFromCart(String productName) {
-        String xpath = "//div[contains(@class,'inventory_item')][.//div[@class='inventory_item_name' and normalize-space()="
-                + xpathLiteral(productName) + "]]//button";
+        String xpath = "//div[contains(concat(' ', normalize-space(@class), ' '), ' inventory_item ')"
+                + "][.//*[contains(concat(' ', normalize-space(@class), ' '), ' inventory_item_name ')"
+                + " and normalize-space(.)=" + xpathLiteral(productName) + "]]"
+                + "//button[contains(concat(' ', normalize-space(@class), ' '), ' btn_inventory ')]";
         click(By.xpath(xpath));
     }
 
