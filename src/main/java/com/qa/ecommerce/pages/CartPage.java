@@ -1,9 +1,13 @@
 package com.qa.ecommerce.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.time.Duration;
 import java.util.List;
 
 /** Page object for the shopping cart. */
@@ -12,6 +16,7 @@ public class CartPage extends BasePage {
     private static final By CART_ITEMS = By.cssSelector(".cart_item");
     private static final By CART_ITEM_NAMES = By.cssSelector(".cart_item .inventory_item_name");
     private static final By CHECKOUT_BUTTON = By.id("checkout");
+    private static final By CHECKOUT_FIRST_NAME = By.id("first-name");
 
     public CartPage(WebDriver driver) {
         super(driver);
@@ -32,8 +37,19 @@ public class CartPage extends BasePage {
         click(By.xpath(xpath));
     }
 
+    /**
+     * Scrolls the checkout control into the viewport, clicks it, and waits until
+     * the checkout information form is ready before returning its page object.
+     */
     public CheckoutPage proceedToCheckout() {
-        click(CHECKOUT_BUTTON);
+        WebElement checkoutButton = waits.clickable(CHECKOUT_BUTTON);
+        ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});", checkoutButton);
+        waits.clickable(CHECKOUT_BUTTON).click();
+
+        new WebDriverWait(driver, Duration.ofSeconds(15))
+                .until(ExpectedConditions.urlContains("checkout-step-one"));
+        waits.visible(CHECKOUT_FIRST_NAME);
         return new CheckoutPage(driver);
     }
 
