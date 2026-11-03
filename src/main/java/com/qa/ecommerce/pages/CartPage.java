@@ -1,14 +1,9 @@
 package com.qa.ecommerce.pages;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.time.Duration;
 import java.util.List;
 
 /** Page object for the shopping cart. */
@@ -43,14 +38,7 @@ public class CartPage extends BasePage {
      * the checkout information form is ready before returning its page object.
      */
     public CheckoutPage proceedToCheckout() {
-        WebElement checkoutButton = waits.clickable(CHECKOUT_BUTTON);
-        ((JavascriptExecutor) driver).executeScript(
-                "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});", checkoutButton);
-        new Actions(driver).moveToElement(checkoutButton)
-                .pause(Duration.ofMillis(150)).click().perform();
-
-        new WebDriverWait(driver, Duration.ofSeconds(15))
-                .until(ExpectedConditions.urlContains("checkout-step-one"));
+        clickAndWaitForUrl(CHECKOUT_BUTTON, "checkout-step-one");
         waits.visible(CHECKOUT_FIRST_NAME);
         return new CheckoutPage(driver);
     }
