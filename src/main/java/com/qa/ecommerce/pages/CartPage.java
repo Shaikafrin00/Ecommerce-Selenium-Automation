@@ -28,14 +28,21 @@ public class CartPage extends BasePage {
     }
 
     public void removeProduct(String productName) {
-        String xpath = "//div[contains(@class,'cart_item')][.//div[@class='inventory_item_name' and normalize-space()="
-                + xpathLiteral(productName) + "]]//button";
-        click(By.xpath(xpath));
+        String xpath = "//div[contains(concat(' ', normalize-space(@class), ' '), ' cart_item ')]"
+                + "[.//*[contains(concat(' ', normalize-space(@class), ' '), ' inventory_item_name ')"
+                + " and normalize-space(.)=" + xpathLiteral(productName) + "]]"
+                + "//button[contains(concat(' ', normalize-space(@class), ' '), ' cart_button ')]";
+        By removeButton = By.xpath(xpath);
+        int previousCount = getCartItemCount();
+        if (previousCount < 1) {
+            throw new IllegalStateException("Cannot remove a product because the cart is empty.");
+        }
+        clickAndWaitForElementCount(removeButton, CART_ITEMS, previousCount - 1);
     }
 
     /**
-     * Scrolls the checkout control into the viewport, clicks it, and waits until
-     * the checkout information form is ready before returning its page object.
+     * Opens checkout and waits for the customer information form before returning
+     * its page object.
      */
     public CheckoutPage proceedToCheckout() {
         clickAndWaitForUrl(CHECKOUT_BUTTON, "checkout-step-one");
@@ -47,6 +54,10 @@ public class CartPage extends BasePage {
         if (!value.contains("'")) {
             return "'" + value + "'";
         }
-        return "concat('" + value.replace("'", "', \"'\", '") + "')";
+        if (!value.contains("\"")) {
+            return "\"" + value + "\"";
+        }
+        String[] parts = value.split("'", -1);
+        return "concat('" + String.join("', \"'\", '", parts) + "')";
     }
 }

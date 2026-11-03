@@ -2,10 +2,11 @@ package com.qa.ecommerce.pages;
 
 import com.qa.ecommerce.utils.WaitUtils;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -26,27 +27,37 @@ public abstract class BasePage {
     }
 
     /**
-     * Uses a native Selenium click first. If the expected page transition does not
-     * occur promptly, retries via the element's JavaScript click handler and still
-     * requires the destination URL before continuing.
+     * Performs a native Selenium click, then verifies the expected UI state.
+     * When the native click does not produce that state, retries the element's
+     * click handler through JavaScript. The condition must still become true.
      */
     protected void clickAndWaitForUrl(By locator, String urlFragment) {
+        clickAndWait(locator, ExpectedConditions.urlContains(urlFragment));
+    }
+
+    protected void clickAndWaitForElement(By clickLocator, By expectedLocator) {
+        clickAndWait(clickLocator, ExpectedConditions.visibilityOfElementLocated(expectedLocator));
+    }
+
+    protected void clickAndWaitForElementCount(By clickLocator, By observedLocator, int expectedCount) {
+        clickAndWait(clickLocator, ExpectedConditions.numberOfElementsToBe(observedLocator, expectedCount));
+    }
+
+    private void clickAndWait(By locator, ExpectedCondition<?> successCondition) {
         WebElement element = waits.clickable(locator);
         ((JavascriptExecutor) driver).executeScript(
                 "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});", element);
         try {
             element.click();
-            new WebDriverWait(driver, Duration.ofSeconds(3))
-                    .until(ExpectedConditions.urlContains(urlFragment));
+            new WebDriverWait(driver, Duration.ofSeconds(4)).until(successCondition);
             return;
-        } catch (TimeoutException ignored) {
-            // The native click did not navigate; retry through the element click handler.
+        } catch (WebDriverException nativeClickFailure) {
+            // Retry below only because the expected state was not reached.
         }
 
         WebElement retryElement = waits.clickable(locator);
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", retryElement);
-        new WebDriverWait(driver, Duration.ofSeconds(12))
-                .until(ExpectedConditions.urlContains(urlFragment));
+        new WebDriverWait(driver, Duration.ofSeconds(12)).until(successCondition);
     }
 
     protected void type(By locator, String value) {

@@ -74,6 +74,7 @@ public class InventoryPage extends BasePage {
 
     public CartPage openCart() {
         clickAndWaitForUrl(CART_LINK, "cart.html");
+        waits.visible(By.id("cart_contents_container"));
         return new CartPage(driver);
     }
 
